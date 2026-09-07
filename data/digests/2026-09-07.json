@@ -1,0 +1,163 @@
+{
+ "generated_at": "2026-09-07T02:22:05.865846+00:00",
+ "date": "2026-09-07",
+ "profile": {
+  "country": "ID",
+  "is_student": false,
+  "student_level": "recent_grad",
+  "travel": "online_only",
+  "allow_invite_only": false
+ },
+ "cold_start": true,
+ "top": [
+  {
+   "id": "devpost:29969",
+   "title": "RevenueCat Shipaton 2026",
+   "url": "https://revenuecat-shipaton-2026.devpost.com/",
+   "source": "devpost",
+   "score": 100,
+   "reasons": [
+    "waktu persiapan pas (24 hari)",
+    "hadiah $740.000",
+    "23.964 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 740000,
+   "prize_currency": "USD",
+   "participants": 23964,
+   "mode": "online",
+   "end_at": "2026-10-01T23:59:59+00:00",
+   "days_left": 24.9,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30992",
+   "title": "Build, Ship, Shape: Amazon Developer Hackathon",
+   "url": "https://amazonappdev2026.devpost.com/",
+   "source": "devpost",
+   "score": 96,
+   "reasons": [
+    "masih lama (46 hari)",
+    "hadiah $138.000",
+    "2.536 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 138000,
+   "prize_currency": "USD",
+   "participants": 2536,
+   "mode": "online",
+   "end_at": "2026-10-23T23:59:59+00:00",
+   "days_left": 46.9,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30452",
+   "title": "AI Builders Hackathon",
+   "url": "https://ai-builders-hackathon-2026.devpost.com/",
+   "source": "devpost",
+   "score": 94,
+   "reasons": [
+    "waktu persiapan pas (8 hari)",
+    "hadiah $33.900",
+    "2.889 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 33900,
+   "prize_currency": "USD",
+   "participants": 2889,
+   "mode": "online",
+   "end_at": "2026-09-15T23:59:59+00:00",
+   "days_left": 8.9,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30408",
+   "title": "Global Innovation Build Challenge V2",
+   "url": "https://gibc-v2.devpost.com/",
+   "source": "devpost",
+   "score": 94,
+   "reasons": [
+    "waktu persiapan pas (14 hari)",
+    "hadiah $156.525",
+    "786 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 156525,
+   "prize_currency": "USD",
+   "participants": 786,
+   "mode": "online",
+   "end_at": "2026-09-21T23:59:59+00:00",
+   "days_left": 14.9,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "check",
+    "blockers": [],
+    "warnings": [
+     "Ditandai untuk mahasiswa — banyak lomba menerima fresh grad (biasanya ≤12 bulan) atau peserta program non-gelar, tapi cek syaratnya"
+    ],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30767",
+   "title": "GatewayHacks 2026 | Software & AI",
+   "url": "https://gatewayhacks-2026.devpost.com/",
+   "source": "devpost",
+   "score": 94,
+   "reasons": [
+    "waktu persiapan pas (25 hari)",
+    "hadiah $1.007.085",
+    "927 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 1007085,
+   "prize_currency": "USD",
+   "participants": 927,
+   "mode": "online",
+   "end_at": "2026-10-02T23:59:59+00:00",
+   "days_left": 25.9,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  }
+ ],
+ "context": {
+  "new_this_week": 213,
+  "closing_soon": 13,
+  "your_deadlines": 0,
+  "candidates": 64,
+  "excluded_ineligible": 149
+ }
+}
