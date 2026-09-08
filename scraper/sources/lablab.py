@@ -127,7 +127,10 @@ def normalize(raw: dict) -> Hackathon:
         prize_currency=currency,
         participants=counts.get("participants"),
         themes=themes,
-        signup_open=1 if raw.get("signupActive") else 0,
+        # Absent is not the same as closed. eligibility treats signup_open == 0 as
+        # a hard blocker, so defaulting a missing field to 0 would silently bury
+        # every event whose payload simply omits the flag.
+        signup_open=(1 if raw["signupActive"] else 0) if "signupActive" in raw else None,
     )
 
 

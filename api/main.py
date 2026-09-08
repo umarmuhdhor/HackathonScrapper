@@ -276,6 +276,13 @@ def list_tracked():
 def upsert_tracked(hackathon_id: str, body: TrackIn):
     if body.status not in TRACK_STATUSES:
         raise HTTPException(400, f"status must be one of {TRACK_STATUSES}")
+    # Agenda and notifications compare my_deadline as a date string in SQL. An
+    # unparseable value is not merely stored wrong, it sorts wrong and drops the
+    # entry out of both views with no error anywhere — so reject it here.
+    if body.my_deadline is not None:
+        if parse_iso(body.my_deadline) is None:
+            raise HTTPException(400, "my_deadline must be an ISO-8601 datetime")
+        body.my_deadline = iso(parse_iso(body.my_deadline))
     now = iso(utcnow())
     with db() as conn:
         row = conn.execute(
@@ -625,11 +632,18 @@ def stats():
             "SELECT status, COUNT(*) n FROM hackathons GROUP BY status")}
         by_track = {r["status"]: r["n"] for r in conn.execute(
             "SELECT status, COUNT(*) n FROM tracked GROUP BY status")}
-        active_prize = conn.execute(
-            """SELECT COALESCE(SUM(h.prize_amount), 0) FROM tracked t
-               JOIN hackathons h ON h.id = t.hackathon_id
-               WHERE t.status NOT IN ('lost', 'won')"""
-        ).fetchone()[0]
+        # Prizes come in more than one currency and there is no exchange rate
+        # here, so they are kept apart instead of being added into a single
+        # number that would be labelled USD and be wrong.
+        prize_rows = conn.execute(
+            """SELECT COALESCE(h.prize_currency, 'USD') AS cur,
+                      COALESCE(SUM(h.prize_amount), 0) AS total
+               FROM tracked t JOIN hackathons h ON h.id = t.hackathon_id
+               WHERE t.status NOT IN ('lost', 'won') AND h.prize_amount IS NOT NULL
+               GROUP BY cur ORDER BY total DESC"""
+        ).fetchall()
+        by_currency = {r["cur"]: r["total"] for r in prize_rows}
+        active_prize = by_currency.get("USD", 0)
         now = iso(utcnow())
         urgent = conn.execute(
             """SELECT COUNT(*) FROM tracked t JOIN hackathons h ON h.id = t.hackathon_id
@@ -650,6 +664,7 @@ def stats():
         "tracked_by_status": by_track,
         "tracked_total": sum(by_track.values()),
         "active_prize_pool": active_prize,
+        "active_prize_by_currency": by_currency,
         "deadlines_this_week": urgent,
         "submitted_total": submitted,
         "win_rate": round(won / submitted * 100) if submitted else 0,

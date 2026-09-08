@@ -41,6 +41,32 @@ COLD_TRACTION = 22
 IDEAL_MIN_DAYS = 5
 IDEAL_MAX_DAYS = 45
 
+# Not every source publishes every signal. MLH's season feed carries no prize
+# pool and no registration count at all, so scoring those as zero used to cost
+# each MLH event 55 of the 100 cold-start points before anything was compared —
+# no MLH event could clear 45/100, and none ever reached a daily top five.
+# Missing data is now dropped from the sum instead of counted as a bad score.
+#
+# Renormalizing alone would over-reward a row that we simply know nothing about,
+# so the result is scaled by how much of the total weight was actually observed:
+# a fully-evidenced row keeps its score, a row carried by one signal is capped
+# near MIN_CONFIDENCE of it.
+MIN_CONFIDENCE = 0.70
+
+
+def _blend(parts: list[tuple[float, float]]) -> float:
+    """Weighted average over observed signals only, scaled by their coverage.
+
+    `parts` is a list of (weight, value) for signals that exist for this row;
+    weights of absent signals are simply never passed in.
+    """
+    total = sum(w for w, _ in parts)
+    if not total:
+        return 0.0
+    average = sum(w * v for w, v in parts) / total
+    coverage = total / 100.0
+    return average * (MIN_CONFIDENCE + (1 - MIN_CONFIDENCE) * coverage) * 100
+
 
 @dataclass
 class Profile:
@@ -125,17 +151,29 @@ def score_row(row, profile: Profile, now: datetime | None = None) -> dict:
     reasons: list[str] = []
 
     timing, timing_reason = _timing_score(end_at, now)
+    # None means the source never published the figure; 0 means it published a
+    # zero. Only the first is unknown, and only the first is dropped.
+    has_prize = row["prize_amount"] is not None
+    has_traction = row["participants"] is not None
     prize = _log_scale(row["prize_amount"], 100_000)
     traction = _log_scale(row["participants"], 10_000)
 
     if profile.is_cold:
-        total = timing * COLD_TIMING + prize * COLD_PRIZE + traction * COLD_TRACTION
+        parts = [(COLD_TIMING, timing)]
+        if has_prize:
+            parts.append((COLD_PRIZE, prize))
+        if has_traction:
+            parts.append((COLD_TRACTION, traction))
+        total = _blend(parts)
         if timing_reason:
             reasons.append(timing_reason)
         if row["prize_amount"]:
             reasons.append(f"hadiah ${row['prize_amount']:,}".replace(",", "."))
         if row["participants"]:
             reasons.append(f"{row['participants']:,} pendaftar".replace(",", "."))
+        if not has_prize and not has_traction:
+            reasons.append(f"{row['source']} tidak menerbitkan hadiah/jumlah pendaftar"
+                           " — dinilai dari waktu saja")
         reasons.append("belum ada riwayat — peringkat dari sinyal umum")
         return {"score": round(total), "reasons": reasons[:4], "matched_themes": []}
 
@@ -155,10 +193,15 @@ def score_row(row, profile: Profile, now: datetime | None = None) -> dict:
         ratio = (row["prize_amount"] or 0) / median if median else 0
         prize_fit = max(prize, min(1.0, ratio / 2)) if ratio else prize * 0.5
 
-    total = (
-        theme * W_THEME + audience * W_AUDIENCE + mode * W_MODE + source * W_SOURCE
-        + timing * W_TIMING + prize_fit * W_PRIZE + traction * W_TRACTION
-    )
+    parts = [
+        (W_THEME, theme), (W_AUDIENCE, audience), (W_MODE, mode),
+        (W_SOURCE, source), (W_TIMING, timing),
+    ]
+    if has_prize:
+        parts.append((W_PRIZE, prize_fit))
+    if has_traction:
+        parts.append((W_TRACTION, traction))
+    total = _blend(parts)
 
     if matched:
         reasons.append("tema cocok: " + ", ".join(matched[:3]))

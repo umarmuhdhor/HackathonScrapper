@@ -42,12 +42,22 @@ def parse_iso(value: str | None) -> datetime | None:
 
 
 def parse_money(raw: str | None) -> tuple[int | None, str | None]:
-    """'$<span data-currency-value>740,000</span>' -> (740000, 'USD')."""
+    """'$<span data-currency-value>740,000</span>' -> (740000, 'USD').
+
+    Only the first amount is taken. Stripping every non-digit in the string used
+    to glue separate figures together, so '$1,000 + $500' became 1500000.
+    """
     if not raw:
         return None, None
     text = re.sub(r"<[^>]+>", "", raw)
     currency = "USD" if "$" in text else ("EUR" if "€" in text else None)
-    digits = re.sub(r"[^\d]", "", text)
+    match = re.search(r"\d[\d.,]*", text)
+    if not match:
+        return None, currency
+    # Whichever of '.' or ',' is used as the decimal point, the fractional part
+    # is dropped: prize pools are whole units and 2 decimals must not become 100x.
+    number = re.sub(r"[.,]\d{1,2}$", "", match.group(0))
+    digits = re.sub(r"[^\d]", "", number)
     return (int(digits) if digits else None), currency
 
 
@@ -144,7 +154,11 @@ _US_ABBR = set(
     "NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split()
 )
 _CA_HINTS = {"ontario", "quebec", "alberta", "manitoba", "saskatchewan", "nova scotia",
-             "british columbia", "toronto", "ottawa", "waterloo", "montreal", "vancouver", "on", "bc", "qc", "ab"}
+             "british columbia", "toronto", "ottawa", "waterloo", "montreal", "vancouver"}
+# Province codes are matched only as a standalone comma-separated part, the same
+# way US state codes are. As free words they are far too greedy: a bare "on"
+# turns "Innovation on Tour, Boston" and "Online, on demand" into Canada.
+_CA_ABBR = {"ON", "BC", "QC", "AB", "MB", "SK", "NS", "NB", "NL", "PE"}
 _IN_HINTS = {"india", "bengaluru", "bangalore", "delhi", "new delhi", "mumbai", "hyderabad",
              "chennai", "kolkata", "pune", "jaipur", "agra", "bhopal", "noida", "gurugram", "ahmedabad"}
 _ID_HINTS = {"indonesia", "jakarta", "bandung", "surabaya", "yogyakarta", "depok", "tangerang", "bekasi"}
@@ -172,8 +186,10 @@ def resolve_country(location: str | None) -> str | None:
             return code
     parts = [p.strip() for p in re.split(r"[,\u2014\u2013-]", location) if p.strip()]
     for part in parts:
-        if part.upper() in _US_ABBR and len(part) == 2:
+        if len(part) == 2 and part.upper() in _US_ABBR:
             return "US"
+        if len(part) == 2 and part.upper() in _CA_ABBR:
+            return "CA"
     for hint_set, code in ((_ID_HINTS, "ID"), (_IN_HINTS, "IN"), (_CA_HINTS, "CA")):
         if any(re.search(rf"\b{re.escape(h)}\b", text) for h in hint_set):
             return code

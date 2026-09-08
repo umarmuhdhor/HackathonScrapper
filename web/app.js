@@ -85,6 +85,15 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (m) =>
 
 const money = (n, c) => (n == null ? "—" : (c === "EUR" ? "€" : "$") + n.toLocaleString("en-US"));
 
+/* Prize totals arrive split by currency — there is no rate to merge them with,
+   so show each one rather than stamping the sum with a currency it is not. */
+const prizePool = (stats) => {
+  const by = stats.active_prize_by_currency || {};
+  const parts = Object.entries(by).filter(([, v]) => v > 0);
+  if (!parts.length) return "—";
+  return parts.map(([cur, amount]) => money(amount, cur)).join(" + ");
+};
+
 function countdown(endAt) {
   if (!endAt) return { text: "tanpa tanggal", cls: "due-none" };
   const ms = new Date(endAt) - new Date();
@@ -326,7 +335,7 @@ async function loadOverview() {
   $("#stats").innerHTML = [
     ["Dilacak", stats.tracked_total, "lomba di papanmu"],
     ["Deadline ≤7 hari", stats.deadlines_this_week, "belum submit"],
-    ["Prize pool aktif", money(stats.active_prize_pool, "USD"), "yang masih diperebutkan"],
+    ["Prize pool aktif", prizePool(stats), "yang masih diperebutkan"],
     ["Sudah submit", stats.submitted_total, `win rate ${stats.win_rate}%`],
     ["Sedang berjalan", stats.by_status.open || 0, "dari semua sumber"],
     ["Total tersimpan", stats.total, "di database lokal"],

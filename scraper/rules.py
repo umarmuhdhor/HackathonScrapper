@@ -64,24 +64,42 @@ COUNTRIES = {
     "turkey": "TR", "israel": "IL", "egypt": "EG", "nigeria": "NG", "kenya": "KE",
     "ghana": "GH", "pakistan": "PK", "bangladesh": "BD", "nepal": "NP", "colombia": "CO",
     "chile": "CL", "peru": "PE", "switzerland": "CH", "romania": "RO", "hungary": "HU",
+    # Sanctions-list names that appear verbatim in Devpost's own boilerplate but
+    # were missing here, so they were silently dropped from exclusion lists.
+    "western sahara": "EH", "afghanistan": "AF", "kazakhstan": "KZ", "somalia": "SO",
+    "djibouti": "DJ", "iraq": "IQ", "libya": "LY", "yemen": "YE", "lebanon": "LB",
 }
 _COUNTRY_RE = re.compile(
     "|".join(rf"\b{re.escape(n)}\b" for n in sorted(COUNTRIES, key=len, reverse=True)),
     re.I,
 )
 
-# Where the exclusion list starts, and how far past it to keep reading.
-NOT_OPEN_RE = re.compile(
-    r"(?:is\s+not\s+open\s+to|not\s+open\s+to|are\s+not\s+eligible|ineligible\s+(?:to|for))",
+# The residency phrase itself is the anchor: the country list always follows it
+# directly. Anchoring on "not open to" instead used to start the scan hundreds of
+# characters too early, which both invented bans (Devpost's "at least twenty years
+# old in Taiwan" age clause became a Taiwan ban) and cut the real list short.
+RESIDENCY_ANCHOR_RE = re.compile(
+    r"residents?\s+of|resident\s+of|domiciled\s+in|reside\s+in", re.I
+)
+# The anchor only counts when the sentence around it is phrased as an exclusion.
+# Without this, "participants who are residents of X may enter" would ban X.
+NEGATIVE_LEAD_RE = re.compile(
+    r"not\s+be\s+an?|not\s+be\s+a|not\s+open\s+to|are\s+not\s+eligible|is\s+not\s+eligible"
+    r"|ineligible|excluded|may\s+not\s+(?:enter|participate)|prohibited|void\s+in",
     re.I,
 )
-RESIDENT_RE = re.compile(r"residents?\s+of|domiciled\s+in|reside\s+in", re.I)
+# How far back to look for that negative phrasing, and how much of the list to read.
+LEAD_WINDOW = 160
+CLAUSE_WINDOW = 1400
+# Stop before the next numbered sub-clause or ALL-CAPS section heading, so one
+# clause's country list cannot bleed into the next clause's text.
+CLAUSE_END_RE = re.compile(r"\(\d+\)\s*(?!not)|\d+\.\s+[A-Z]{3,}|;\s*(?:and|or)\s*\(")
+
 STUDENT_ONLY_RE = re.compile(
     r"(?:must\s+be|only\s+open\s+to|open\s+only\s+to)[^.]{0,80}"
     r"(?:currently\s+enrolled|full[- ]time\s+student|registered\s+student|university\s+student)",
     re.I,
 )
-EXCLUSION_WINDOW = 900  # characters after the trigger phrase
 
 # Below this much extracted text the page is a JavaScript shell, not content —
 # parsing it would "find no restrictions" simply because it found no words.
@@ -95,9 +113,14 @@ RETRY_FAILED_AFTER_DAYS = 7
 # Length alone is not enough: a marketing page full of prose also clears it, and
 # would then be recorded as "rules read, nothing found" — a false green light.
 # The page must actually look like it discusses who may enter.
+#
+# Every phrase here has to be about *entry*, not about the project. "Requirements"
+# and "must be" used to be in this list and were the whole reason three real
+# Devpost pages ("Project and Submission Requirements", "Python Requirement")
+# were recorded as verified rules pages when they say nothing about eligibility.
 RULES_MARKER_RE = re.compile(
     r"eligib|official\s+rules|terms\s+(?:and|&)\s+conditions|not\s+open\s+to"
-    r"|who\s+can\s+(?:participate|enter|join)|requirements?\b|must\s+be\s+(?:at\s+least|a\s+)"
+    r"|who\s+can\s+(?:participate|enter|join)"
     r"|age\s+of\s+majority|residents?\s+of",
     re.I,
 )
@@ -156,25 +179,33 @@ def find_openness_claim(text: str) -> str | None:
 
 
 def parse_eligibility(text: str) -> dict:
-    """Pull excluded countries and a student requirement out of rules prose."""
+    """Pull excluded countries and a student requirement out of rules prose.
+
+    Only countries that follow a residency phrase inside a negatively-framed
+    sentence count. Countries named anywhere else on the page — sponsor
+    addresses, age-of-majority carve-outs, employee clauses — are ignored.
+    """
     excluded: dict[str, None] = {}
     snippet = None
 
-    for match in NOT_OPEN_RE.finditer(text):
-        window = text[match.start(): match.start() + EXCLUSION_WINDOW]
-        # Only trust the list when it is framed as a residency restriction —
-        # otherwise "not open to employees of the sponsor" would grab countries
-        # mentioned elsewhere in the same paragraph.
-        if not RESIDENT_RE.search(window):
+    for match in RESIDENCY_ANCHOR_RE.finditer(text):
+        lead = text[max(0, match.start() - LEAD_WINDOW): match.start()]
+        if not NEGATIVE_LEAD_RE.search(lead):
             continue
-        clean = NOISE_RE.sub(" ", window)
+        clause = text[match.start(): match.start() + CLAUSE_WINDOW]
+        # Skip the anchor itself before hunting for the clause boundary, so
+        # "residents of" cannot terminate its own clause.
+        cut = CLAUSE_END_RE.search(clause[40:])
+        if cut:
+            clause = clause[: cut.start() + 40]
+        clean = NOISE_RE.sub(" ", clause)
         found = [COUNTRIES[m.group(0).lower()] for m in _COUNTRY_RE.finditer(clean)]
         if not found:
             continue
         for code in found:
             excluded.setdefault(code, None)
         if snippet is None:
-            snippet = window[:600].strip()
+            snippet = clause[:600].strip()
 
     return {
         "excluded_countries": list(excluded),
