@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -815,9 +815,22 @@ def make_digest(top: int = Query(5, ge=1, le=20)):
         return build_digest(conn, top_n=top)
 
 
-@app.get("/")
+def _asset_version(name: str) -> str:
+    """Cache key for a static asset: its own mtime, so an edit is a new URL."""
+    try:
+        return str(int((WEB_DIR / name).stat().st_mtime))
+    except OSError:
+        return "0"
+
+
+@app.get("/", response_class=HTMLResponse)
 def index():
-    return FileResponse(WEB_DIR / "index.html")
+    # The shell must never be cached: it carries the asset fingerprints, and a
+    # stale copy pins the browser to yesterday's CSS and JS after every edit.
+    html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+    html = html.replace("__CSS_V__", _asset_version("app.css"))
+    html = html.replace("__JS_V__", _asset_version("app.js"))
+    return HTMLResponse(html, headers={"Cache-Control": "no-cache, must-revalidate"})
 
 
 app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")

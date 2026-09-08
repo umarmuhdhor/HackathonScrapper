@@ -19,7 +19,11 @@ const PAGES = {
 };
 
 const AUDIENCE_LABELS = { student: "Mahasiswa/pelajar", general: "Umum" };
-const ELIG_LABELS = { eligible: "✓ bisa ikut", check: "⚠ perlu dicek", blocked: "✕ tidak bisa" };
+const ELIG_LABELS = {
+  eligible: `<svg class="i i-xs" aria-hidden="true"><use href="#i-check-circle"/></svg> bisa ikut`,
+  check: `<svg class="i i-xs" aria-hidden="true"><use href="#i-alert"/></svg> perlu dicek`,
+  blocked: `<svg class="i i-xs" aria-hidden="true"><use href="#i-x"/></svg> tidak bisa`,
+};
 const LEVEL_LABELS = {
   none: "bukan pelajar", recent_grad: "baru lulus / non-gelar", highschool: "siswa SMA",
   undergrad: "mahasiswa S1", postgrad: "mahasiswa S2/S3",
@@ -44,9 +48,9 @@ async function setFeedback(id, kind) {
 function fbButtons(h) {
   const fb = h.feedback;
   return `<button class="btn sm fb-btn ${fb === "like" ? "on-like" : ""}" data-fb="like" data-target="${esc(h.id)}"
-            title="Sematkan di urutan atas">♥</button>
+            title="Sematkan di urutan atas" aria-label="Sematkan di urutan atas"><svg class="i i-sm" aria-hidden="true"><use href="#i-heart"/></svg></button>
           <button class="btn sm fb-btn ${fb === "dismiss" ? "on-dismiss" : ""}" data-fb="dismiss" data-target="${esc(h.id)}"
-            title="Jangan rekomendasikan lagi">✕</button>`;
+            title="Jangan rekomendasikan lagi" aria-label="Jangan rekomendasikan lagi"><svg class="i i-sm" aria-hidden="true"><use href="#i-x"/></svg></button>`;
 }
 
 function bindFeedback(root, after) {
@@ -65,7 +69,9 @@ const eligWhy = (e) => {
                  ...e.warnings.map((w) => `<span class="w">${esc(w)}</span>`)];
   return lines.length ? `<div class="elig-why">${lines.join("")}</div>` : "";
 };
-const LEVEL_ICONS = { overdue: "⛔", critical: "🔴", warning: "🟠", soon: "🟡", info: "⚪" };
+const LEVEL_ICONS = {
+  overdue: "alert", critical: "alert", warning: "alert", soon: "agenda", info: "info",
+};
 
 const state = {
   facets: null, tracked: [], current: null, checklist: [], page: "overview",
@@ -133,13 +139,24 @@ function toast(msg) {
   clearTimeout(toast._t);
   toast._t = setTimeout(() => t.classList.remove("show"), 2200);
 }
+function skeleton(sel, kind, n = 3) {
+  const el = $(sel);
+  if (!el || el.dataset.painted) return;
+  el.innerHTML = `<div class="skel skel-${kind}"></div>`.repeat(n);
+}
+function painted(sel) { const el = $(sel); if (el) el.dataset.painted = "1"; }
+
 const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
 /* ---------------------------------------------------------------- routing */
 
 function go(page) {
   state.page = page;
-  $$("nav a").forEach((a) => a.classList.toggle("active", a.dataset.page === page));
+  $$("nav a").forEach((a) => {
+    const on = a.dataset.page === page;
+    a.classList.toggle("active", on);
+    if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
   $$("section[data-view]").forEach((s) => (s.hidden = s.dataset.view !== page));
   const [title, sub] = PAGES[page];
   $("#page-title").textContent = title;
@@ -148,7 +165,13 @@ function go(page) {
      discover: loadDiscover, recommend: loadRecommend, digest: loadDigest,
      scraper: loadScraper }[page])();
 }
-$$("nav a").forEach((a) => a.addEventListener("click", () => go(a.dataset.page)));
+$$("nav a").forEach((a) => {
+  a.addEventListener("click", () => go(a.dataset.page));
+  // these are buttons in behaviour; without this they are mouse-only
+  a.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(a.dataset.page); }
+  });
+});
 
 /* ---------------------------------------------------------------- chrome */
 
@@ -239,7 +262,7 @@ async function loadNotifications() {
 
   $("#notif-list").innerHTML = data.items.length
     ? data.items.map((n) => `<div class="notif ${n.level}" data-id="${esc(n.id)}">
-        <span>${LEVEL_ICONS[n.level]}</span>
+        <span class="lead"><svg class="i i-sm" aria-hidden="true"><use href="#i-${LEVEL_ICONS[n.level] || "info"}"/></svg></span>
         <div class="grow">
           <h6>${esc(n.title)}</h6>
           <div class="meta">
@@ -249,7 +272,7 @@ async function loadNotifications() {
           </div>
         </div>
       </div>`).join("")
-    : `<div class="empty" style="border:0;padding:22px">Tidak ada deadline mendesak. 🎉</div>`;
+    : `<div class="empty" style="border:0;padding:22px"><span style="display:inline-flex;align-items:center;gap:7px;color:var(--good)"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg> Tidak ada deadline mendesak.</span></div>`;
   bindCards("#notif-list");
 
   $("#notif-foot").textContent = [
@@ -270,7 +293,7 @@ function renderBanner(data) {
   if (!hot.length && !warm.length) { box.innerHTML = ""; return; }
   const list = hot.length ? hot : warm;
   box.innerHTML = `<div class="banner ${hot.length ? "" : "warn"}">
-    <span style="font-size:18px">${hot.length ? "🔴" : "🟠"}</span>
+    <svg class="i" aria-hidden="true" style="width:19px;height:19px"><use href="#i-alert"/></svg>
     <div class="grow">
       <b>${list.length} lomba butuh perhatian sekarang</b>
       <div class="meta">${list.slice(0, 3).map((n) => `${esc(n.title)} — ${esc(n.message.toLowerCase())}`).join(" · ")}</div>
@@ -310,13 +333,19 @@ function maybePopup(data) {
   if (changed) markPopped(seen);
 }
 
+function setNotifOpen(open) {
+  $("#notif-pop").hidden = !open;
+  $("#bell").setAttribute("aria-expanded", String(open));
+}
 $("#bell").addEventListener("click", (e) => {
   e.stopPropagation();
-  const pop = $("#notif-pop");
-  pop.hidden = !pop.hidden;
+  setNotifOpen($("#notif-pop").hidden);
 });
 document.addEventListener("click", (e) => {
-  if (!e.target.closest(".bell-wrap")) $("#notif-pop").hidden = true;
+  if (!e.target.closest(".bell-wrap")) setNotifOpen(false);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("#notif-pop").hidden) { setNotifOpen(false); $("#bell").focus(); }
 });
 $("#notif-permission").addEventListener("click", async (e) => {
   e.stopPropagation();
@@ -328,6 +357,10 @@ $("#notif-permission").addEventListener("click", async (e) => {
 /* ---------------------------------------------------------------- overview */
 
 async function loadOverview() {
+  skeleton("#stats", "stat", 6);
+  skeleton("#agenda-mini", "row", 4);
+  skeleton("#activity", "row", 4);
+  skeleton("#reco-mini", "card", 3);
   const [stats, agenda, act, sources] = await Promise.all([
     loadChrome(), api("/api/agenda?days=30"), api("/api/activity?limit=8"), api("/api/sources"),
   ]);
@@ -343,8 +376,10 @@ async function loadOverview() {
 
   $("#agenda-mini").innerHTML = agenda.items.length
     ? agenda.items.slice(0, 6).map(agendaRow).join("")
-    : `<div class="empty">Belum ada deadline. Lacak lomba dari <b>Jelajahi</b>.</div>`;
+    : `<div class="empty">Belum ada deadline yang dipantau.
+        <button class="btn sm" data-goto="discover">Jelajahi lomba</button></div>`;
   bindCards("#agenda-mini");
+  bindGoto("#agenda-mini");
 
   $("#activity").innerHTML = act.items.length
     ? act.items.map((e) => `<div class="tl"><span class="when">${ago(e.created_at)}</span>
@@ -356,8 +391,10 @@ async function loadOverview() {
   const reco = await api("/api/recommendations?limit=3");
   $("#reco-basis").textContent = recoBasis(reco.profile);
   $("#reco-mini").innerHTML = reco.items.map(recoCard).join("")
-    || `<div class="empty">Belum ada kandidat. Jalankan scraping dulu.</div>`;
+    || `<div class="empty">Belum ada kandidat di database.
+        <button class="btn sm" data-goto="scraper">Jalankan scraping</button></div>`;
   bindCards("#reco-mini");
+  bindGoto("#reco-mini");
   bindFeedback("#reco-mini", loadOverview);
 }
 
@@ -377,7 +414,7 @@ function recoCard(h) {
   const cls = h.score >= 85 ? "hot" : h.score >= 65 ? "mid" : "";
   state.feedback[h.id] = h.feedback || undefined;
   return `<div class="card reco ${h.feedback === "like" ? "pinned" : ""}" data-id="${esc(h.id)}">
-    ${h.feedback === "like" ? '<div class="pin-flag">♥ disematkan</div>' : ""}
+    ${h.feedback === "like" ? `<div class="pin-flag"><svg class="i i-xs" aria-hidden="true"><use href="#i-pin"/></svg> disematkan</div>` : ""}
     <div class="top">
       <span class="score ${cls}">${h.score}</span>
       <h4>${esc(h.title)}</h4>
@@ -387,9 +424,9 @@ function recoCard(h) {
     <div class="foot">
       ${eligChip(h.eligibility)}
       <span class="tag ${h.source}">${h.source}</span>
-      <span class="tag">${h.audience === "student" ? "🎓 mahasiswa" : "🌐 umum"}</span>
+      <span class="tag">${h.audience === "student" ? "mahasiswa" : "umum"}</span>
       <span class="due ${c.cls}">${c.text}</span>
-      <span style="margin-left:auto;display:inline-flex;gap:6px">
+      <span class="acts">
         ${fbButtons(h)}
         <button class="btn sm" data-id="${esc(h.id)}">+ Lacak</button>
       </span>
@@ -400,6 +437,7 @@ function recoCard(h) {
 const recoSources = new Set();
 
 async function loadRecommend() {
+  skeleton("#reco-list", "card", 6);
   const facets = await loadFacets();
   if (!$("#r-audience").dataset.filled) {
     $("#r-audience").innerHTML = '<option value="">Semua peserta</option>' +
@@ -408,7 +446,7 @@ async function loadRecommend() {
     $("#r-mode").innerHTML = '<option value="">Semua format</option>' +
       facets.modes.map((m) => `<option value="${m.name}">${m.name}</option>`).join("");
     $("#r-sources").innerHTML = facets.sources
-      .map((s) => `<span class="tag chip ${s}" data-source="${s}">${s}</span>`).join("");
+      .map((s) => `<span class="tag chip ${s}" role="checkbox" tabindex="0" aria-checked="false" data-source="${s}">${s}</span>`).join("");
     $$("#r-sources .chip").forEach((c) => c.addEventListener("click", () => {
       const s = c.dataset.source;
       recoSources.has(s) ? recoSources.delete(s) : recoSources.add(s);
@@ -430,7 +468,7 @@ async function loadRecommend() {
   ]);
   const pending = rulesStat.totals.pending;
   $("#reco-warning").innerHTML = pending
-    ? `<div class="banner warn"><span style="font-size:18px">⚠</span><div class="grow">
+    ? `<div class="banner warn"><svg class="i" aria-hidden="true" style="width:19px;height:19px"><use href="#i-alert"/></svg><div class="grow">
          <b>${pending} lomba aturannya belum diperiksa</b>
          <div class="meta">Larangan negara bisa saja ada tapi belum ketahuan. Biasanya terisi
          otomatis saat scraping — jalankan manual dari halaman Scraper kalau menumpuk.</div>
@@ -525,6 +563,13 @@ function renderBoard() {
     (!q || h.title.toLowerCase().includes(q) || (h.track_project_name || "").toLowerCase().includes(q)) &&
     (!prio || String(h.track_priority) === prio));
 
+  if (!state.tracked.length) {
+    $("#board").innerHTML = `<div class="empty board-empty">Papan masih kosong.
+      Mulai dari peringkat, lalu lacak yang kamu pilih.
+      <button class="btn sm" data-goto="recommend">Lihat rekomendasi</button></div>`;
+    bindGoto("#board");
+    return;
+  }
   $("#board").innerHTML = BOARD_COLUMNS.map((key) => {
     const mine = items.filter((h) => h.track_status === key);
     return `<div class="col"><h3>${TRACK_LABELS[key]}<span>${mine.length}</span></h3>
@@ -539,18 +584,47 @@ function boardCard(h) {
   const done = list.filter((i) => i.done).length;
   const pct = h.track_progress || 0;
   return `<div class="tcard p${h.track_priority || 2}" data-id="${esc(h.id)}">
-    <h4>${esc(h.title)}</h4>
+    <div class="card-head">
+      <span class="dot-level" aria-hidden="true"></span>
+      <h4>${esc(h.title)}</h4>
+    </div>
     <div class="meta">
       <span class="tag ${h.source}">${h.source}</span>
       <span class="${c.cls}">${c.text}</span>
     </div>
     ${pct ? `<div class="bar" style="margin-top:8px"><i style="width:${pct}%"></i></div>` : ""}
     <div class="meta" style="margin-top:7px">
-      ${h.track_project_name ? `<span>📦 ${esc(h.track_project_name)}</span>` : ""}
-      ${list.length ? `<span>☑ ${done}/${list.length}</span>` : ""}
+      ${h.track_project_name ? `<span><svg class="i i-xs" aria-hidden="true"><use href="#i-package"/></svg> ${esc(h.track_project_name)}</span>` : ""}
+      ${list.length ? `<span><svg class="i i-xs" aria-hidden="true"><use href="#i-checklist"/></svg> ${done}/${list.length}</span>` : ""}
       ${pct ? `<span>${pct}%</span>` : ""}
     </div>
   </div>`;
+}
+
+function bindChips(root, onToggle) {
+  $$(`${root} .chip`).forEach((c) => {
+    const flip = () => {
+      const on = c.classList.toggle("on");
+      if (c.hasAttribute("aria-checked")) c.setAttribute("aria-checked", String(on));
+      if (onToggle) onToggle(c, on);
+    };
+    c.addEventListener("click", flip);
+  });
+}
+document.addEventListener("keydown", (e) => {
+  const chip = e.target.closest && e.target.closest(".chip");
+  if (chip && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); chip.click(); }
+});
+// every chip group flips its own class; keep the announced state honest
+document.addEventListener("click", (e) => {
+  const chip = e.target.closest && e.target.closest(".chip[aria-checked]");
+  if (chip) chip.setAttribute("aria-checked", String(chip.classList.contains("on")));
+});
+bindChips("#s-devpost-status");
+
+function bindGoto(root) {
+  $$(`${root} [data-goto]`).forEach((el) =>
+    el.addEventListener("click", (e) => { e.stopPropagation(); go(el.dataset.goto); }));
 }
 
 function bindCards(root) {
@@ -581,7 +655,7 @@ async function loadFacets() {
   if (state.facets) return state.facets;
   state.facets = await api("/api/facets");
   $("#f-sources").innerHTML = state.facets.sources
-    .map((s) => `<span class="tag chip ${s}" data-source="${s}">${s}</span>`).join("");
+    .map((s) => `<span class="tag chip ${s}" role="checkbox" tabindex="0" aria-checked="false" data-source="${s}">${s}</span>`).join("");
   $$("#f-sources .chip").forEach((c) => c.addEventListener("click", () => {
     const s = c.dataset.source;
     discoverSources.has(s) ? discoverSources.delete(s) : discoverSources.add(s);
@@ -596,13 +670,14 @@ async function loadFacets() {
   $("#f-theme").innerHTML = '<option value="">Semua tema</option>' +
     state.facets.themes.map((t) => `<option value="${esc(t.name)}">${esc(t.name)} (${t.count})</option>`).join("");
   $("#s-sources").innerHTML = state.facets.sources
-    .map((s) => `<span class="tag chip on ${s}" data-source="${s}">${s}</span>`).join("");
+    .map((s) => `<span class="tag chip on ${s}" role="checkbox" tabindex="0" aria-checked="true" data-source="${s}">${s}</span>`).join("");
   $$("#s-sources .chip").forEach((c) =>
     c.addEventListener("click", () => c.classList.toggle("on")));
   return state.facets;
 }
 
 async function loadDiscover() {
+  skeleton("#rows", "table", 8);
   await loadFacets();
   const p = new URLSearchParams();
   const q = $("#f-q").value.trim();
@@ -634,12 +709,12 @@ async function loadDiscover() {
         ${eligWhy(e)}</td>
       <td class="nowrap">${eligChip(e)}</td>
       <td><span class="tag ${h.source}">${h.source}</span></td>
-      <td class="nowrap"><span class="tag">${h.audience === "student" ? "🎓 mahasiswa" : "🌐 umum"}</span></td>
+      <td class="nowrap"><span class="tag">${h.audience === "student" ? "mahasiswa" : "umum"}</span></td>
       <td class="nowrap ${c.cls}">${c.text}</td>
       <td class="right nowrap">${money(h.prize_amount, h.prize_currency)}</td>
       <td class="right">${h.participants ?? "—"}</td>
       <td class="right nowrap"><button class="btn sm" data-id="${esc(h.id)}">${
-        h.track_status ? "✎ " + TRACK_LABELS[h.track_status] : "+ Lacak"}</button></td>
+        h.track_status ? `<svg class="i i-xs" aria-hidden="true"><use href="#i-edit"/></svg> ` + TRACK_LABELS[h.track_status] : `<svg class="i i-xs" aria-hidden="true"><use href="#i-plus"/></svg> Lacak`}</button></td>
     </tr>`;
   }).join("") || '<tr><td colspan="8"><div class="empty">Tidak ada yang cocok. Longgarkan filternya.</div></td></tr>';
   bindCards("#rows");
@@ -696,7 +771,7 @@ async function loadDigest() {
   const c = data.context;
   $("#d-note").textContent =
     `${c.candidates} kandidat lolos syaratmu · ${c.excluded_ineligible} tersaring`
-    + (c.your_deadlines ? ` · ⚠ ${c.your_deadlines} deadline di papanmu minggu ini` : "");
+    + (c.your_deadlines ? ` · ${c.your_deadlines} deadline di papanmu minggu ini` : "");
 
   $("#digest-body").innerHTML = `
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
@@ -714,7 +789,7 @@ async function loadDigest() {
 function digestCard(item, n) {
   const cls = item.score >= 85 ? "hot" : item.score >= 65 ? "mid" : "";
   const flags = [
-    item.pinned ? "♥ disematkan" : "",
+    item.pinned ? "disematkan" : "",
     item.is_new === true ? "baru" : item.is_new === false ? "lanjutan" : "",
     item.closes_this_week ? "tutup minggu ini" : "",
   ].filter(Boolean);
@@ -740,12 +815,15 @@ function digestCard(item, n) {
 
 $("#d-date").addEventListener("change", loadDigest);
 $("#d-build").addEventListener("click", async (e) => {
-  e.target.disabled = true;
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  btn.classList.add("is-busy");
   try {
     await send("/api/digest/build?top=5", "POST", {});
     toast("Digest disusun ulang");
   } catch (err) { toast("Gagal: " + err.message); }
-  e.target.disabled = false;
+  btn.disabled = false;
+  btn.classList.remove("is-busy");
   loadDigest();
 });
 
@@ -770,7 +848,8 @@ async function loadScraper() {
 function renderRulesStatus(r) {
   const t = r.totals;
   $("#rules-status").innerHTML = `
-    <table style="width:100%;margin-bottom:10px">
+    <div class="tablewrap" style="margin-bottom:10px">
+    <table>
       <thead><tr><th>Sumber</th><th class="right">Hidup</th><th class="right">Terverifikasi</th>
         <th class="right">Tak terbaca</th><th class="right">Belum dicek</th>
         <th class="right">Larangan negara</th></tr></thead>
@@ -783,6 +862,7 @@ function renderRulesStatus(r) {
         <td class="right">${e.with_country_limits}</td>
       </tr>`).join("")}</tbody>
     </table>
+    </div>
     <span class="elig ${r.blocked_for_your_country ? "blocked" : "eligible"}">${r.blocked_for_your_country} melarang ${r.your_country}</span>
     <span class="tag">${t.verified} dari ${t.live} lomba hidup terverifikasi</span>`;
   $("#rules-run").disabled = t.pending === 0;
@@ -792,7 +872,9 @@ function renderRulesStatus(r) {
 }
 
 $("#rules-run").addEventListener("click", async (e) => {
-  e.target.disabled = true;
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  btn.classList.add("is-busy");
   $("#rules-note").textContent = "membaca halaman aturan… (bisa beberapa menit)";
   try {
     const r = await send("/api/rules/check?limit=60&sources=devpost,lablab,mlh", "POST", {});
@@ -800,6 +882,7 @@ $("#rules-run").addEventListener("click", async (e) => {
   } catch (err) {
     toast("Gagal: " + err.message);
   }
+  btn.classList.remove("is-busy");
   await loadScraper();
   loadChrome();
 });
@@ -807,7 +890,7 @@ $("#rules-run").addEventListener("click", async (e) => {
 async function runScrape(opts = {}) {
   const body = {
     sources: $$("#s-sources .chip.on").map((c) => c.dataset.source),
-    devpost_statuses: [...$("#s-devpost-status").selectedOptions].map((o) => o.value),
+    devpost_statuses: $$("#s-devpost-status .chip.on").map((c) => c.dataset.status),
     mlh_seasons: ($("#s-mlh-seasons").value.match(/\d{4}/g) || []).map(Number),
     max_pages: Number($("#s-pages").value) || 8,
     ttl_minutes: Number($("#s-ttl").value),
@@ -822,6 +905,7 @@ async function runScrape(opts = {}) {
 $("#s-run").addEventListener("click", async () => {
   const btn = $("#s-run");
   btn.disabled = true;
+  btn.classList.add("is-busy");
   $("#s-status").textContent = "sedang mengambil data…";
   try {
     const results = await runScrape();
@@ -844,6 +928,7 @@ $("#s-run").addEventListener("click", async () => {
   }
   $("#s-status").textContent = "";
   btn.disabled = false;
+  btn.classList.remove("is-busy");
   state.facets = null;
   const keep = $$("#s-sources .chip.on").map((c) => c.dataset.source);
   await loadScraper();
@@ -852,8 +937,10 @@ $("#s-run").addEventListener("click", async () => {
 });
 
 $("#quick-sync").addEventListener("click", async (e) => {
-  e.target.disabled = true;
-  e.target.textContent = "⟳ sinkron…";
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  btn.classList.add("is-busy");
+  $("#quick-sync-label").textContent = "sinkron…";
   try {
     const results = await send("/api/scrape", "POST", { sources: null, force: false });
     const done = results.results.filter((r) => !r.skipped && !r.error);
@@ -861,8 +948,9 @@ $("#quick-sync").addEventListener("click", async (e) => {
       ? done.map((r) => `${r.source}: +${r.new}`).join("  ")
       : "Semua sumber masih segar — pakai halaman Scraper untuk memaksa");
   } catch (err) { toast("Gagal: " + err.message); }
-  e.target.disabled = false;
-  e.target.textContent = "⟳ Sinkron";
+  btn.disabled = false;
+  btn.classList.remove("is-busy");
+  $("#quick-sync-label").textContent = "Sinkron";
   go(state.page);
 });
 
@@ -923,7 +1011,7 @@ function renderChecklist() {
     <div class="ci ${item.done ? "done" : ""}">
       <input type="checkbox" data-check="${i}" ${item.done ? "checked" : ""}>
       <input type="text" data-text="${i}" value="${esc(item.text)}">
-      <button class="x" data-del="${i}" type="button">✕</button>
+      <button class="x" data-del="${i}" type="button" aria-label="Hapus langkah"><svg class="i i-sm" aria-hidden="true"><use href="#i-x"/></svg></button>
     </div>`).join("");
   $$("#ed-checklist [data-check]").forEach((el) => el.addEventListener("change", () => {
     state.checklist[el.dataset.check].done = el.checked;
