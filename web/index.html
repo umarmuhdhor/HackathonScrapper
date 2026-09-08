@@ -102,15 +102,15 @@
           <div class="timeline" id="activity"></div>
         </div>
       </div>
-      <div class="card pad" style="margin-top:14px">
+      <section class="block">
         <h3 class="section-title">Rekomendasi untukmu <small id="reco-basis"></small>
           <button class="btn sm" id="reco-more" style="margin-left:auto">lihat semua</button></h3>
-        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))" id="reco-mini"></div>
-      </div>
-      <div class="card pad" style="margin-top:14px">
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))" id="reco-mini"></div>
+      </section>
+      <section class="block">
         <h3 class="section-title">Sumber data <small>tersimpan lokal, tidak di-scrape ulang selama masih segar</small></h3>
-        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))" id="source-cards"></div>
-      </div>
+        <div class="grid sources" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))" id="source-cards"></div>
+      </section>
     </section>
 
     <!-- ============ PAPAN ============ -->
@@ -168,6 +168,17 @@
           <option value="blocked">Tidak bisa diikuti</option>
           <option value="">Tampilkan semua</option>
         </select>
+        <select id="f-sort">
+          <option value="deadline">Urut: deadline</option>
+          <option value="prize">Urut: hadiah</option>
+          <option value="participants">Urut: peserta</option>
+          <option value="added">Urut: terbaru masuk</option>
+          <option value="title">Urut: judul</option>
+        </select>
+        <button class="btn sm ghost" id="f-toggle" type="button" aria-expanded="false" aria-controls="f-more">penyaring lain</button>
+        <button class="btn sm ghost" id="f-reset">reset</button>
+      </div>
+      <div class="filterbar more" id="f-more" hidden>
         <select id="f-audience"><option value="">Semua peserta</option></select>
         <select id="f-mode"><option value="">Semua format</option></select>
         <select id="f-theme"><option value="">Semua tema</option></select>
@@ -184,13 +195,6 @@
           <option value="7">Tutup ≤7 hari</option>
           <option value="30">Tutup ≤30 hari</option>
         </select>
-        <select id="f-sort">
-          <option value="deadline">Urut: deadline</option>
-          <option value="prize">Urut: hadiah</option>
-          <option value="participants">Urut: peserta</option>
-          <option value="added">Urut: terbaru masuk</option>
-          <option value="title">Urut: judul</option>
-        </select>
         <select id="f-duration">
           <option value="">Durasi apa saja</option>
           <option value="2">Kilat ≤2 hari</option>
@@ -205,7 +209,6 @@
         </select>
         <label class="check"><input type="checkbox" id="f-new"> baru masuk ≤7 hari</label>
         <label class="check"><input type="checkbox" id="f-untracked"> sembunyikan yang dilacak</label>
-        <button class="btn sm" id="f-reset">reset</button>
       </div>
       <div class="card pad">
         <div class="sub" id="discover-count" style="color:var(--faint);font-size:12px;margin-bottom:8px"></div>
@@ -282,14 +285,14 @@
         </div>
         <div class="card pad">
           <h3 class="section-title">Status penyimpanan</h3>
-          <div class="grid" id="s-cards"></div>
+          <div class="grid sources" id="s-cards"></div>
           <p style="color:var(--faint);font-size:12px;margin:14px 0 0">
             Semua hasil scraping disimpan di <code>data/hackathons.db</code>. Halaman lain membaca
             dari sana, jadi menutup dan membuka dashboard tidak memicu scraping baru.
           </p>
         </div>
       </div>
-      <div class="card pad" style="margin-top:14px">
+      <div class="card pad block">
         <h3 class="section-title">Aturan kelayakan <small>baca halaman aturan untuk larangan negara</small></h3>
         <div id="rules-status" style="margin-bottom:10px"></div>
         <button class="btn primary" id="rules-run"><svg class="i i-sm" aria-hidden="true"><use href="#i-play"/></svg> Periksa aturan yang belum dicek</button>
@@ -303,7 +306,7 @@
           <b>tak terbaca</b>, bukan dianggap bersih.
         </p>
       </div>
-      <div class="card pad" style="margin-top:14px">
+      <div class="card pad block">
         <h3 class="section-title">Riwayat scraping</h3>
         <div class="tablewrap">
           <table>
@@ -322,7 +325,7 @@
     <h3 id="ed-title">—</h3>
     <div class="meta">
       <span class="tag" id="ed-source"></span>
-      <a id="ed-link" href="#" target="_blank" rel="noopener" style="color:var(--accent)" class="ed-link">buka halaman lomba <svg class="i i-sm" aria-hidden="true"><use href="#i-external"/></svg></a>
+      <a id="ed-link" href="#" target="_blank" rel="noopener" class="ed-link">buka halaman lomba <svg class="i i-sm" aria-hidden="true"><use href="#i-external"/></svg></a>
       <span id="ed-due"></span>
       <span id="ed-where"></span>
     </div>

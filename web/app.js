@@ -725,6 +725,31 @@ async function loadDiscover() {
   const el = document.getElementById(id);
   el.addEventListener(el.type === "search" ? "input" : "change", debounce(loadDiscover, 220));
 });
+
+/* the secondary filters stay folded away; the button carries how many are set
+   so folding them never hides a filter that is quietly changing the result */
+const MORE_FILTERS = ["f-audience", "f-mode", "f-theme", "f-prize", "f-ends",
+                      "f-duration", "f-participants", "f-new", "f-untracked"];
+function moreFilterCount() {
+  return MORE_FILTERS.filter((id) => {
+    const el = document.getElementById(id);
+    return el.type === "checkbox" ? el.checked : !!el.value;
+  }).length;
+}
+function syncMoreFilters() {
+  const n = moreFilterCount();
+  $("#f-toggle").innerHTML = "penyaring lain" + (n ? ` <span class="count">${n}</span>` : "");
+  $("#f-toggle").classList.toggle("on", n > 0);
+}
+$("#f-toggle").addEventListener("click", () => {
+  const box = $("#f-more");
+  const open = box.hasAttribute("hidden");
+  box.toggleAttribute("hidden", !open);
+  $("#f-toggle").setAttribute("aria-expanded", String(open));
+});
+MORE_FILTERS.forEach((id) => document.getElementById(id)
+  .addEventListener("change", syncMoreFilters));
+syncMoreFilters();
 $("#f-reset").addEventListener("click", () => {
   ["f-q", "f-audience", "f-mode", "f-theme", "f-prize", "f-ends", "f-duration", "f-participants"]
     .forEach((id) => (document.getElementById(id).value = ""));
@@ -735,6 +760,7 @@ $("#f-reset").addEventListener("click", () => {
   $("#f-new").checked = false;
   discoverSources.clear();
   $$("#f-sources .chip").forEach((c) => c.classList.remove("on"));
+  syncMoreFilters();
   loadDiscover();
 });
 

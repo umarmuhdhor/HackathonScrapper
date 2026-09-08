@@ -17,3 +17,9 @@ digest ok — data/digests/2026-09-07.md
   mlh      81 ditemukan, 0 baru
   digest  5 lomba · 64 kandidat · tersimpan di data/digests/2026-09-07.md
 digest ok — data/digests/2026-09-07.md
+=== 2026-09-08 08:12:09 ===
+  devpost  GAGAL: ConnectTimeout: _ssl.c:1015: The handshake operation timed out
+  lablab   GAGAL: ConnectError: [Errno 8] nodename nor servname provided, or not known
+  mlh      GAGAL: ConnectError: [Errno 8] nodename nor servname provided, or not known
+  digest  5 lomba · 64 kandidat · tersimpan di data/digests/2026-09-08.md
+digest ok — data/digests/2026-09-08.md
