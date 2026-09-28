@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import shutil
 import sqlite3
 from datetime import timedelta
 from pathlib import Path
@@ -10,6 +12,14 @@ from pathlib import Path
 from .models import Hackathon, classify_audience, iso, parse_iso, resolve_country, utcnow
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "hackathons.db"
+
+if os.environ.get("VERCEL"):
+    # Vercel's filesystem is read-only outside /tmp: work on a copy of the seed DB
+    # committed under data/seed/. Writes survive only while the instance stays warm.
+    _SEED_DB = DB_PATH.parent / "seed" / "hackathons.db"
+    DB_PATH = Path("/tmp/hackathons.db")
+    if not DB_PATH.exists() and _SEED_DB.exists():
+        shutil.copyfile(_SEED_DB, DB_PATH)
 
 TRACK_STATUSES = [
     "interested",

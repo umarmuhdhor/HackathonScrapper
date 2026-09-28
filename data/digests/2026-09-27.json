@@ -1,0 +1,161 @@
+{
+ "generated_at": "2026-09-27T00:01:15.721805+00:00",
+ "date": "2026-09-27",
+ "profile": {
+  "country": "ID",
+  "is_student": false,
+  "student_level": "recent_grad",
+  "travel": "online_only",
+  "allow_invite_only": false
+ },
+ "cold_start": true,
+ "top": [
+  {
+   "id": "devpost:30992",
+   "title": "Build, Ship, Shape: Amazon Developer Hackathon",
+   "url": "https://amazonappdev2026.devpost.com/",
+   "source": "devpost",
+   "score": 100,
+   "reasons": [
+    "waktu persiapan pas (26 hari)",
+    "hadiah $138.000",
+    "15.154 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 138000,
+   "prize_currency": "USD",
+   "participants": 15154,
+   "mode": "online",
+   "end_at": "2026-10-23T23:59:59+00:00",
+   "days_left": 27.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30790",
+   "title": "Nebius x NVIDIA Global AI Hackathon",
+   "url": "https://nebiusglobalaihackathon.devpost.com/",
+   "source": "devpost",
+   "score": 98,
+   "reasons": [
+    "waktu persiapan pas (33 hari)",
+    "hadiah $50.000",
+    "12.393 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 50000,
+   "prize_currency": "USD",
+   "participants": 12393,
+   "mode": "online",
+   "end_at": "2026-10-30T23:59:59+00:00",
+   "days_left": 34.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30767",
+   "title": "GatewayHacks 2026 | Software & AI",
+   "url": "https://gatewayhacks-2026.devpost.com/",
+   "source": "devpost",
+   "score": 94,
+   "reasons": [
+    "waktu persiapan pas (5 hari)",
+    "hadiah $1.007.085",
+    "927 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 1007085,
+   "prize_currency": "USD",
+   "participants": 927,
+   "mode": "online",
+   "end_at": "2026-10-02T23:59:59+00:00",
+   "days_left": 6.0,
+   "closes_this_week": true,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30858",
+   "title": "ForgeHacks Online 2026",
+   "url": "https://forgehacks-2026.devpost.com/",
+   "source": "devpost",
+   "score": 93,
+   "reasons": [
+    "waktu persiapan pas (13 hari)",
+    "hadiah $445.177",
+    "551 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 445177,
+   "prize_currency": "USD",
+   "participants": 551,
+   "mode": "online",
+   "end_at": "2026-10-10T23:59:59+00:00",
+   "days_left": 14.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30984",
+   "title": "OpenCV AI Competition 2026, powered by AWS",
+   "url": "https://opencv26.devpost.com/",
+   "source": "devpost",
+   "score": 92,
+   "reasons": [
+    "waktu persiapan pas (30 hari)",
+    "hadiah $20.250",
+    "2.804 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 20250,
+   "prize_currency": "USD",
+   "participants": 2804,
+   "mode": "online",
+   "end_at": "2026-10-27T23:59:59+00:00",
+   "days_left": 31.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": true
+  }
+ ],
+ "context": {
+  "new_this_week": 59,
+  "closing_soon": 53,
+  "your_deadlines": 0,
+  "candidates": 95,
+  "excluded_ineligible": 234
+ }
+}

@@ -1,0 +1,163 @@
+{
+ "generated_at": "2026-09-18T00:01:07.659170+00:00",
+ "date": "2026-09-18",
+ "profile": {
+  "country": "ID",
+  "is_student": false,
+  "student_level": "recent_grad",
+  "travel": "online_only",
+  "allow_invite_only": false
+ },
+ "cold_start": true,
+ "top": [
+  {
+   "id": "devpost:29969",
+   "title": "RevenueCat Shipaton 2026",
+   "url": "https://revenuecat-shipaton-2026.devpost.com/",
+   "source": "devpost",
+   "score": 100,
+   "reasons": [
+    "waktu persiapan pas (13 hari)",
+    "hadiah $740.000",
+    "26.374 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 740000,
+   "prize_currency": "USD",
+   "participants": 26374,
+   "mode": "online",
+   "end_at": "2026-10-01T23:59:59+00:00",
+   "days_left": 14.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30992",
+   "title": "Build, Ship, Shape: Amazon Developer Hackathon",
+   "url": "https://amazonappdev2026.devpost.com/",
+   "source": "devpost",
+   "score": 100,
+   "reasons": [
+    "waktu persiapan pas (35 hari)",
+    "hadiah $138.000",
+    "8.711 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 138000,
+   "prize_currency": "USD",
+   "participants": 8711,
+   "mode": "online",
+   "end_at": "2026-10-23T23:59:59+00:00",
+   "days_left": 36.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30790",
+   "title": "Nebius x NVIDIA Global AI Hackathon",
+   "url": "https://nebiusglobalaihackathon.devpost.com/",
+   "source": "devpost",
+   "score": 97,
+   "reasons": [
+    "waktu persiapan pas (42 hari)",
+    "hadiah $50.000",
+    "7.038 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 50000,
+   "prize_currency": "USD",
+   "participants": 7038,
+   "mode": "online",
+   "end_at": "2026-10-30T23:59:59+00:00",
+   "days_left": 43.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30767",
+   "title": "GatewayHacks 2026 | Software & AI",
+   "url": "https://gatewayhacks-2026.devpost.com/",
+   "source": "devpost",
+   "score": 94,
+   "reasons": [
+    "waktu persiapan pas (14 hari)",
+    "hadiah $1.007.085",
+    "927 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 1007085,
+   "prize_currency": "USD",
+   "participants": 927,
+   "mode": "online",
+   "end_at": "2026-10-02T23:59:59+00:00",
+   "days_left": 15.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "lablab:ibm-bob-2-hackathon",
+   "title": "IBM Bob 2.0 hackathon",
+   "url": "https://lablab.ai/event/ibm-bob-2-hackathon",
+   "source": "lablab",
+   "score": 93,
+   "reasons": [
+    "waktu persiapan pas (9 hari)",
+    "hadiah $10.000",
+    "11.486 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 10000,
+   "prize_currency": "USD",
+   "participants": 11486,
+   "mode": "online",
+   "end_at": "2026-09-27T15:00:00+00:00",
+   "days_left": 9.6,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "check",
+    "blockers": [],
+    "warnings": [
+     "Halaman lombanya tidak memuat aturan yang bisa dibaca — cek manual"
+    ],
+    "rules_checked": false
+   },
+   "pinned": false,
+   "is_new": true
+  }
+ ],
+ "context": {
+  "new_this_week": 52,
+  "closing_soon": 17,
+  "your_deadlines": 0,
+  "candidates": 74,
+  "excluded_ineligible": 184
+ }
+}

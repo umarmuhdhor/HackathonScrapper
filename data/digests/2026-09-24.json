@@ -1,0 +1,161 @@
+{
+ "generated_at": "2026-09-24T00:05:12.255950+00:00",
+ "date": "2026-09-24",
+ "profile": {
+  "country": "ID",
+  "is_student": false,
+  "student_level": "recent_grad",
+  "travel": "online_only",
+  "allow_invite_only": false
+ },
+ "cold_start": true,
+ "top": [
+  {
+   "id": "devpost:29969",
+   "title": "RevenueCat Shipaton 2026",
+   "url": "https://revenuecat-shipaton-2026.devpost.com/",
+   "source": "devpost",
+   "score": 100,
+   "reasons": [
+    "waktu persiapan pas (7 hari)",
+    "hadiah $740.000",
+    "27.295 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 740000,
+   "prize_currency": "USD",
+   "participants": 27295,
+   "mode": "online",
+   "end_at": "2026-10-01T23:59:59+00:00",
+   "days_left": 8.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30992",
+   "title": "Build, Ship, Shape: Amazon Developer Hackathon",
+   "url": "https://amazonappdev2026.devpost.com/",
+   "source": "devpost",
+   "score": 100,
+   "reasons": [
+    "waktu persiapan pas (29 hari)",
+    "hadiah $138.000",
+    "12.427 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 138000,
+   "prize_currency": "USD",
+   "participants": 12427,
+   "mode": "online",
+   "end_at": "2026-10-23T23:59:59+00:00",
+   "days_left": 30.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30790",
+   "title": "Nebius x NVIDIA Global AI Hackathon",
+   "url": "https://nebiusglobalaihackathon.devpost.com/",
+   "source": "devpost",
+   "score": 98,
+   "reasons": [
+    "waktu persiapan pas (36 hari)",
+    "hadiah $50.000",
+    "10.917 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 50000,
+   "prize_currency": "USD",
+   "participants": 10917,
+   "mode": "online",
+   "end_at": "2026-10-30T23:59:59+00:00",
+   "days_left": 37.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30767",
+   "title": "GatewayHacks 2026 | Software & AI",
+   "url": "https://gatewayhacks-2026.devpost.com/",
+   "source": "devpost",
+   "score": 94,
+   "reasons": [
+    "waktu persiapan pas (8 hari)",
+    "hadiah $1.007.085",
+    "927 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 1007085,
+   "prize_currency": "USD",
+   "participants": 927,
+   "mode": "online",
+   "end_at": "2026-10-02T23:59:59+00:00",
+   "days_left": 9.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": false
+  },
+  {
+   "id": "devpost:30858",
+   "title": "ForgeHacks Online 2026",
+   "url": "https://forgehacks-2026.devpost.com/",
+   "source": "devpost",
+   "score": 93,
+   "reasons": [
+    "waktu persiapan pas (16 hari)",
+    "hadiah $367.687",
+    "449 pendaftar",
+    "belum ada riwayat — peringkat dari sinyal umum"
+   ],
+   "prize_amount": 367687,
+   "prize_currency": "USD",
+   "participants": 449,
+   "mode": "online",
+   "end_at": "2026-10-10T23:59:59+00:00",
+   "days_left": 17.0,
+   "closes_this_week": false,
+   "eligibility": {
+    "verdict": "eligible",
+    "blockers": [],
+    "warnings": [],
+    "rules_checked": true
+   },
+   "pinned": false,
+   "is_new": true
+  }
+ ],
+ "context": {
+  "new_this_week": 67,
+  "closing_soon": 20,
+  "your_deadlines": 0,
+  "candidates": 87,
+  "excluded_ineligible": 212
+ }
+}

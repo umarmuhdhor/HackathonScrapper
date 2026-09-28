@@ -12,6 +12,8 @@ rather than presented as fresh news every morning.
 from __future__ import annotations
 
 import json
+import os
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -23,6 +25,12 @@ from .rules import enrich as enrich_rules
 from .run import ScrapeOptions, scrape
 
 DIGEST_DIR = Path(__file__).resolve().parent.parent / "data" / "digests"
+
+if os.environ.get("VERCEL"):
+    # Same read-only constraint as the DB: serve and write digests from /tmp.
+    _BUNDLED_DIGESTS, DIGEST_DIR = DIGEST_DIR, Path("/tmp/digests")
+    if not DIGEST_DIR.exists() and _BUNDLED_DIGESTS.exists():
+        shutil.copytree(_BUNDLED_DIGESTS, DIGEST_DIR)
 TOP_N = 5
 
 
